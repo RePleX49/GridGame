@@ -225,6 +225,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TilePrefab: {fileID: 8555977205177146391, guid: 0d33c7ea89f9bdc48947b3463cd68a00,
     type: 3}
+  PlayerPrefab: {fileID: 8381483275158396813, guid: f3a8aa3d34ebc8c41aff354200d2ab59,
+    type: 3}
 --- !u!4 &1461208233
 Transform:
   m_ObjectHideFlags: 0

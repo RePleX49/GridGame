@@ -9,6 +9,7 @@ public class GridManagerScript : MonoBehaviour
 
     private GameObject[,] TileGrid;
     public GameObject TilePrefab;
+    public GameObject PlayerPrefab;
 
     // Start is called before the first frame update
     void Start()
@@ -23,11 +24,9 @@ public class GridManagerScript : MonoBehaviour
             ts.SetType();
             ts = CheckMatches();
         }
-    }
 
-    private void OnGUI()
-    {
-        if(Input.GetMouseButton(0))
+        Destroy(TileGrid[WIDTH / 2, HEIGHT / 2]);
+        TileGrid[WIDTH / 2, HEIGHT / 2] = PlayerPrefab;
     }
 
     void MakeGrid()
@@ -69,5 +68,25 @@ public class GridManagerScript : MonoBehaviour
         }
 
         return null;
+    }
+
+    void ClearMatch()
+    {
+        for (int x = 0; x < WIDTH; x++)
+        {
+            for (int y = 0; y < HEIGHT; y++)
+            {
+                TileScript ts = TileGrid[x, y].GetComponent<TileScript>();
+
+                if (x < WIDTH - 2 && ts.CompareTiles(TileGrid[x + 1, y], TileGrid[x + 2, y]))
+                {
+                    ts.ClearMatch(TileGrid[x + 1, y], TileGrid[x + 2, y]);
+                }
+                else if (y < HEIGHT - 2 && ts.CompareTiles(TileGrid[x, y + 1], TileGrid[x, y + 2]))
+                {
+                    ts.ClearMatch(TileGrid[x, y + 1], TileGrid[x, y + 2]);
+                }
+            }
+        }
     }
 }
