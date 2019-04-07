@@ -10,6 +10,7 @@ public class GridManagerScript : MonoBehaviour
     private GameObject[,] TileGrid;
     public GameObject TilePrefab;
     public GameObject PlayerPrefab;
+    private GameObject ActivePlayer;
 
     // Start is called before the first frame update
     void Start()
@@ -26,7 +27,10 @@ public class GridManagerScript : MonoBehaviour
         }
 
         Destroy(TileGrid[WIDTH / 2, HEIGHT / 2]);
-        TileGrid[WIDTH / 2, HEIGHT / 2] = PlayerPrefab;
+
+        ActivePlayer = Instantiate(PlayerPrefab);
+        ActivePlayer.transform.localPosition = new Vector2(WIDTH / 2, HEIGHT / 2);
+        TileGrid[WIDTH / 2, HEIGHT / 2] = ActivePlayer;      
     }
 
     void MakeGrid()
@@ -88,5 +92,52 @@ public class GridManagerScript : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void MovePlayer(string Direction)
+    {
+        int PlayerX = (int)ActivePlayer.transform.position.x;
+        int PlayerY = (int)ActivePlayer.transform.position.y;
+
+        switch(Direction)
+        {
+            case "Right":
+                TileGrid[PlayerX, PlayerY] = TileGrid[PlayerX + 1, PlayerY];
+                TileGrid[PlayerX, PlayerY].transform.position = new Vector2(PlayerX, PlayerY);
+
+                TileGrid[PlayerX + 1, PlayerY] = ActivePlayer;
+                ActivePlayer.transform.position = new Vector2(PlayerX + 1, PlayerY);
+
+                break;
+
+            case "Left":
+                TileGrid[PlayerX, PlayerY] = TileGrid[PlayerX - 1, PlayerY];
+                TileGrid[PlayerX, PlayerY].transform.position = new Vector2(PlayerX, PlayerY);
+
+                TileGrid[PlayerX - 1, PlayerY] = ActivePlayer;
+                ActivePlayer.transform.position = new Vector2(PlayerX - 1, PlayerY);
+                break;
+
+            case "Up":
+                TileGrid[PlayerX, PlayerY] = TileGrid[PlayerX, PlayerY + 1];
+                TileGrid[PlayerX, PlayerY].transform.position = new Vector2(PlayerX, PlayerY);
+
+                TileGrid[PlayerX, PlayerY + 1] = ActivePlayer;
+                ActivePlayer.transform.position = new Vector2(PlayerX, PlayerY + 1);
+                break;
+
+            case "Down":
+                TileGrid[PlayerX, PlayerY] = TileGrid[PlayerX, PlayerY - 1];
+                TileGrid[PlayerX, PlayerY].transform.position = new Vector2(PlayerX, PlayerY);
+
+                TileGrid[PlayerX, PlayerY - 1] = ActivePlayer;
+                ActivePlayer.transform.position = new Vector2(PlayerX, PlayerY - 1);
+                break;
+
+            default:
+                break;
+        }
+
+        
     }
 }
