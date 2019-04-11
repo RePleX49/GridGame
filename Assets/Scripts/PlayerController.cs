@@ -22,28 +22,38 @@ public class PlayerController : MonoBehaviour
         {
             //if player x is less than grid WIDTH then can move
             GMScript.MovePlayer("Right");
-            MovesLeft--;           
+            CheckGameOver();
         }
         
         if(Input.GetKeyDown(KeyCode.LeftArrow))
         {
             // if player x is greater than 0, then can move
             GMScript.MovePlayer("Left");
-            MovesLeft--;            
+            CheckGameOver();
         }
 
         if(Input.GetKeyDown(KeyCode.UpArrow))
         {
             // if player y is less than HEIGHT, then can move
             GMScript.MovePlayer("Up");
-            MovesLeft--;
+            CheckGameOver();
         }
 
         if(Input.GetKeyDown(KeyCode.DownArrow))
         {
             // if player y is greater than 0, then can move
             GMScript.MovePlayer("Down");
-            MovesLeft--;
+            CheckGameOver();
+        }
+    }
+
+    void CheckGameOver()
+    {
+        MovesLeft--;
+
+        if (MovesLeft < 1)
+        {
+            // game over
         }
     }
 }

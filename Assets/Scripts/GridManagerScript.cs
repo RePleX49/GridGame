@@ -7,10 +7,26 @@ public class GridManagerScript : MonoBehaviour
     private const int WIDTH = 6;
     private const int HEIGHT = 10;
 
-    private GameObject[,] TileGrid;
+    public GameObject[,] TileGrid;
     public GameObject TilePrefab;
     public GameObject PlayerPrefab;
     private GameObject ActivePlayer;
+
+    public static GridManagerScript Instance = null;
+
+    private void Awake()
+    {
+        if(Instance == null)
+        {
+            Instance = this;
+        }
+        else if(Instance != this)
+        {
+            Destroy(gameObject);
+        }
+
+        DontDestroyOnLoad(this.gameObject);
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -74,26 +90,6 @@ public class GridManagerScript : MonoBehaviour
         return null;
     }
 
-    void ClearMatch()
-    {
-        for (int x = 0; x < WIDTH; x++)
-        {
-            for (int y = 0; y < HEIGHT; y++)
-            {
-                TileScript ts = TileGrid[x, y].GetComponent<TileScript>();
-
-                if (x < WIDTH - 2 && ts.CompareTiles(TileGrid[x + 1, y], TileGrid[x + 2, y]))
-                {
-                    ts.ClearMatch(TileGrid[x + 1, y], TileGrid[x + 2, y]);
-                }
-                else if (y < HEIGHT - 2 && ts.CompareTiles(TileGrid[x, y + 1], TileGrid[x, y + 2]))
-                {
-                    ts.ClearMatch(TileGrid[x, y + 1], TileGrid[x, y + 2]);
-                }
-            }
-        }
-    }
-
     public void MovePlayer(string Direction)
     {
         int PlayerX = (int)ActivePlayer.transform.position.x;
@@ -102,42 +98,103 @@ public class GridManagerScript : MonoBehaviour
         switch(Direction)
         {
             case "Right":
-                TileGrid[PlayerX, PlayerY] = TileGrid[PlayerX + 1, PlayerY];
-                TileGrid[PlayerX, PlayerY].transform.position = new Vector2(PlayerX, PlayerY);
+                if(PlayerX < WIDTH)
+                {
+                    TileGrid[PlayerX, PlayerY] = TileGrid[PlayerX + 1, PlayerY];
+                    TileGrid[PlayerX, PlayerY].transform.position = new Vector2(PlayerX, PlayerY);
 
-                TileGrid[PlayerX + 1, PlayerY] = ActivePlayer;
-                ActivePlayer.transform.position = new Vector2(PlayerX + 1, PlayerY);
+                    TileGrid[PlayerX + 1, PlayerY] = ActivePlayer;
+                    ActivePlayer.transform.position = new Vector2(PlayerX + 1, PlayerY);
+                }
 
                 break;
 
             case "Left":
-                TileGrid[PlayerX, PlayerY] = TileGrid[PlayerX - 1, PlayerY];
-                TileGrid[PlayerX, PlayerY].transform.position = new Vector2(PlayerX, PlayerY);
+                if(PlayerX > 0)
+                {
+                    TileGrid[PlayerX, PlayerY] = TileGrid[PlayerX - 1, PlayerY];
+                    TileGrid[PlayerX, PlayerY].transform.position = new Vector2(PlayerX, PlayerY);
 
-                TileGrid[PlayerX - 1, PlayerY] = ActivePlayer;
-                ActivePlayer.transform.position = new Vector2(PlayerX - 1, PlayerY);
+                    TileGrid[PlayerX - 1, PlayerY] = ActivePlayer;
+                    ActivePlayer.transform.position = new Vector2(PlayerX - 1, PlayerY);
+                }
+
                 break;
 
             case "Up":
-                TileGrid[PlayerX, PlayerY] = TileGrid[PlayerX, PlayerY + 1];
-                TileGrid[PlayerX, PlayerY].transform.position = new Vector2(PlayerX, PlayerY);
+                if(PlayerY < HEIGHT)
+                {
+                    TileGrid[PlayerX, PlayerY] = TileGrid[PlayerX, PlayerY + 1];
+                    TileGrid[PlayerX, PlayerY].transform.position = new Vector2(PlayerX, PlayerY);
 
-                TileGrid[PlayerX, PlayerY + 1] = ActivePlayer;
-                ActivePlayer.transform.position = new Vector2(PlayerX, PlayerY + 1);
+                    TileGrid[PlayerX, PlayerY + 1] = ActivePlayer;
+                    ActivePlayer.transform.position = new Vector2(PlayerX, PlayerY + 1);
+                }
+
                 break;
 
             case "Down":
-                TileGrid[PlayerX, PlayerY] = TileGrid[PlayerX, PlayerY - 1];
-                TileGrid[PlayerX, PlayerY].transform.position = new Vector2(PlayerX, PlayerY);
+                if(PlayerY > 0)
+                {
+                    TileGrid[PlayerX, PlayerY] = TileGrid[PlayerX, PlayerY - 1];
+                    TileGrid[PlayerX, PlayerY].transform.position = new Vector2(PlayerX, PlayerY);
 
-                TileGrid[PlayerX, PlayerY - 1] = ActivePlayer;
-                ActivePlayer.transform.position = new Vector2(PlayerX, PlayerY - 1);
+                    TileGrid[PlayerX, PlayerY - 1] = ActivePlayer;
+                    ActivePlayer.transform.position = new Vector2(PlayerX, PlayerY - 1);
+                }
+
                 break;
 
             default:
                 break;
         }
 
-        
+        ClearMatches();
     }
+
+    void ClearMatches()
+    {
+        GameObject InitialTile = null;
+        GameObject SecondaryTile = null;
+        List<GameObject> MatchingTiles = new List<GameObject>();
+        for(int x = 0; x < WIDTH; x++)
+        {
+            for(int y = 0; y < HEIGHT; y++)
+            {
+                if(TileGrid[x,y].CompareTag("Tile"))
+                {
+                    if (InitialTile == null)
+                    {
+                        InitialTile = TileGrid[x, y];
+                    }
+
+                    if (InitialTile.GetComponent<TileScript>().TileType == TileGrid[x, y].GetComponent<TileScript>().TileType && !SecondaryTile)
+                    {
+                        MatchingTiles.Add(TileGrid[x, y]);
+
+                        if(TileGrid[x, y] != InitialTile)
+                        {
+                            SecondaryTile = TileGrid[x, y];
+                        }
+                        
+                    }
+                    else if(SecondaryTile.GetComponent<TileScript>().TileType == TileGrid[x, y].GetComponent<TileScript>().TileType)
+                    {
+                        MatchingTiles.Add(TileGrid[x, y]);
+                    }
+                    else
+                    {
+                        MatchingTiles.Clear();
+                        InitialTile = null;
+                    }
+                }                           
+            }           
+        }
+
+        for(int i = 0; i < MatchingTiles.Count; i++)
+        {
+            MatchingTiles[i].GetComponent<SpriteRenderer>().sprite = null;
+        }
+    }
+
 }

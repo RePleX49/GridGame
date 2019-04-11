@@ -34,12 +34,4 @@ public class TileScript : MonoBehaviour
 
         return (ts1.TileType == TileType && ts2.TileType == TileType);
     }
-
-    public void ClearMatch(GameObject t1, GameObject t2)
-    {
-        //TODO add particle effect on kill
-        Destroy(t1);
-        Destroy(t2);
-        Destroy(this.gameObject);
-    }
 }
