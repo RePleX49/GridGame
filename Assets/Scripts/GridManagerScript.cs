@@ -80,7 +80,7 @@ public class GridManagerScript : MonoBehaviour
                 {
                     return ts;
                 }
-                else if ( y < HEIGHT -2 && ts.CompareTiles(TileGrid[x, y + 1], TileGrid[x, y + 2]))
+                else if ( y < HEIGHT - 2 && ts.CompareTiles(TileGrid[x, y + 1], TileGrid[x, y + 2]))
                 {
                     return ts;
                 }
@@ -154,47 +154,40 @@ public class GridManagerScript : MonoBehaviour
 
     void ClearMatches()
     {
-        GameObject InitialTile = null;
-        GameObject SecondaryTile = null;
         List<GameObject> MatchingTiles = new List<GameObject>();
-        for(int x = 0; x < WIDTH; x++)
+
+        for (int x = 0; x < WIDTH; x++)
         {
-            for(int y = 0; y < HEIGHT; y++)
-            {
-                if(TileGrid[x,y].CompareTag("Tile"))
+            for (int y = 0; y < HEIGHT; y++)
+            {   
+                if(TileGrid[x, y].CompareTag("Tile"))
                 {
-                    if (InitialTile == null)
-                    {
-                        InitialTile = TileGrid[x, y];
-                    }
+                    TileScript ts = TileGrid[x, y].GetComponent<TileScript>();
 
-                    if (InitialTile.GetComponent<TileScript>().TileType == TileGrid[x, y].GetComponent<TileScript>().TileType && !SecondaryTile)
+                    if (x < WIDTH - 2 && ts.CompareTiles(TileGrid[x + 1, y], TileGrid[x + 2, y]))
                     {
                         MatchingTiles.Add(TileGrid[x, y]);
-
-                        if(TileGrid[x, y] != InitialTile)
-                        {
-                            SecondaryTile = TileGrid[x, y];
-                        }
-                        
+                        MatchingTiles.Add(TileGrid[x + 1, y]);
+                        MatchingTiles.Add(TileGrid[x + 2, y]);
                     }
-                    else if(SecondaryTile.GetComponent<TileScript>().TileType == TileGrid[x, y].GetComponent<TileScript>().TileType)
+                    else if (y < HEIGHT - 2 && ts.CompareTiles(TileGrid[x, y + 1], TileGrid[x, y + 2]))
                     {
                         MatchingTiles.Add(TileGrid[x, y]);
-                    }
-                    else
-                    {
-                        MatchingTiles.Clear();
-                        InitialTile = null;
-                    }
-                }                           
-            }           
+                        MatchingTiles.Add(TileGrid[x, y + 1]);
+                        MatchingTiles.Add(TileGrid[x, y + 2]);
+                    }                 
+                }
+
+                Debug.Log("Looping Through: " + y);
+
+            }
         }
+
+        Debug.Log("MatchingTile Count: " + MatchingTiles.Count);
 
         for(int i = 0; i < MatchingTiles.Count; i++)
         {
             MatchingTiles[i].GetComponent<SpriteRenderer>().sprite = null;
         }
     }
-
 }

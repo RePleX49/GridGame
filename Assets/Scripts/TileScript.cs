@@ -29,9 +29,16 @@ public class TileScript : MonoBehaviour
 
     public bool CompareTiles(GameObject t1, GameObject t2)
     {
-        TileScript ts1 = t1.GetComponent<TileScript>();
-        TileScript ts2 = t2.GetComponent<TileScript>();
+        if(t1.CompareTag("Tile") && t2.CompareTag("Tile"))
+        {
+            TileScript ts1 = t1.GetComponent<TileScript>();
+            TileScript ts2 = t2.GetComponent<TileScript>();
 
-        return (ts1.TileType == TileType && ts2.TileType == TileType);
+            return (ts1.TileType == TileType && ts2.TileType == TileType);
+        }
+        else
+        {
+            return false;
+        }
     }
 }
