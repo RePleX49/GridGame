@@ -24,6 +24,7 @@ public class GridManagerScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        
         audioSource = GetComponent<AudioSource>();
         TileGrid = new GameObject[WIDTH, HEIGHT];
         MakeGrid();
@@ -62,7 +63,9 @@ public class GridManagerScript : MonoBehaviour
     void CenterCamera()
     {
         Vector2 MiddleTilePos = TileGrid[WIDTH / 2, HEIGHT / 2].transform.position;
-        Camera.main.gameObject.transform.position = new Vector3 (MiddleTilePos.x - 0.5f, MiddleTilePos.y - 0.5f, -10);
+        Vector3 NewCameraPos = new Vector3(MiddleTilePos.x - 0.5f, MiddleTilePos.y - 0.5f, -10);
+        Camera.main.gameObject.transform.position = NewCameraPos;
+        cameraShake.GetInitialPos(NewCameraPos);
     }
 
     // used to prevent matches in initial board setup
@@ -281,7 +284,7 @@ public class GridManagerScript : MonoBehaviour
             nullCount = 0;
         }
 
-        yield return new WaitForSeconds(0.75f);
+        yield return new WaitForSeconds(0.5f);
 
         StartCoroutine(RefillBoard());
     }

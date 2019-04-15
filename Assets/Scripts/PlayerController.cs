@@ -10,12 +10,18 @@ public class PlayerController : MonoBehaviour
     private int MovesLeft;
     private GridManagerScript GMScript;
     private Text MoveText;
+    private GameObject MoveTextHolder;
 
     // Start is called before the first frame update
     void Start()
     {
         MovesLeft = MaxMoves;
-        MoveText = GetComponent<Text>();
+        MoveText = GameObject.Find("PlayerMovesText").GetComponent<Text>();
+
+        MoveTextHolder = GameObject.Find("MoveTextHolder");
+        MoveTextHolder.transform.localPosition = Camera.main.WorldToScreenPoint(this.transform.position);
+
+        MoveText.text = MovesLeft.ToString();
         GMScript = GameObject.Find("GridManager").GetComponent<GridManagerScript>();
     }
 
@@ -46,14 +52,16 @@ public class PlayerController : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.DownArrow))
         {
             // if player y is greater than 0, then can move
-            GMScript.MovePlayer("Down");
+            GMScript.MovePlayer("Down");           
             CheckGameOver();
         }
+        MoveTextHolder.transform.position = Camera.main.WorldToScreenPoint(this.transform.position);
     }
 
     void CheckGameOver()
     {
         MovesLeft--;
+        MoveText.text = MovesLeft.ToString();
 
         if (MovesLeft < 1)
         {
@@ -63,7 +71,8 @@ public class PlayerController : MonoBehaviour
 
     public void ResetMoves()
     {
-        MovesLeft = MaxMoves + 1;
+        MovesLeft = MaxMoves;
+        MoveText.text = MovesLeft.ToString();
     }
 }
 
