@@ -1,17 +1,21 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
     public int MaxMoves;
     private int MovesLeft;
     private GridManagerScript GMScript;
+    private Text MoveText;
 
     // Start is called before the first frame update
     void Start()
     {
         MovesLeft = MaxMoves;
+        MoveText = GetComponent<Text>();
         GMScript = GameObject.Find("GridManager").GetComponent<GridManagerScript>();
     }
 
@@ -53,8 +57,13 @@ public class PlayerController : MonoBehaviour
 
         if (MovesLeft < 1)
         {
-            // game over
+            SceneManager.LoadScene(1);
         }
+    }
+
+    public void ResetMoves()
+    {
+        MovesLeft = MaxMoves + 1;
     }
 }
 

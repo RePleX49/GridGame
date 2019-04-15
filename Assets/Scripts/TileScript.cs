@@ -15,12 +15,6 @@ public class TileScript : MonoBehaviour
         SetType();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public void SetType()
     {
         TileType = Random.Range(0, TileSprites.Length);
@@ -29,7 +23,7 @@ public class TileScript : MonoBehaviour
 
     public bool CompareTiles(GameObject t1, GameObject t2)
     {
-        if(t1.CompareTag("Tile") && t2.CompareTag("Tile"))
+        if(t1.gameObject != null && t2.gameObject != null && t1.CompareTag("Tile") && t2.CompareTag("Tile"))
         {
             TileScript ts1 = t1.GetComponent<TileScript>();
             TileScript ts2 = t2.GetComponent<TileScript>();
