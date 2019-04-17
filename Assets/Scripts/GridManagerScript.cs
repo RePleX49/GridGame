@@ -9,17 +9,17 @@ public class GridManagerScript : MonoBehaviour
     private const int WIDTH = 6;
     private const int HEIGHT = 10;
 
-    private GameObject[,] TileGrid;
+    [SerializeField] private GameObject[,] TileGrid;
     private GameObject ActivePlayer;
     private AudioSource audioSource;
 
-    public GameObject TilePrefab;
+    public GameObject[] TilePrefab;
     public GameObject PlayerPrefab;
     public CameraShake cameraShake;
     public Text ScoreText;
 
     public int TotalScore;
-    private bool ObjectIsMoving;
+    public bool ObjectIsMoving;
 
     // Start is called before the first frame update
     void Start()
@@ -30,10 +30,9 @@ public class GridManagerScript : MonoBehaviour
         MakeGrid();
         CenterCamera();
 
-        TileScript ts = CheckMatches();
+        TileClassScript ts = CheckMatches();
         while(ts != null)
         {
-            ts.SetType();
             ts = CheckMatches();
         }
 
@@ -51,7 +50,7 @@ public class GridManagerScript : MonoBehaviour
         {
             for (int y = 0; y < HEIGHT; y++)
             {
-                GameObject tile = Instantiate(TilePrefab);
+                GameObject tile = Instantiate(TilePrefab[Random.Range(0, TilePrefab.Length)]);
                 tile.transform.SetParent(this.transform);
                 tile.transform.localPosition = new Vector2(x, y);
 
@@ -69,11 +68,11 @@ public class GridManagerScript : MonoBehaviour
     }
 
     // used to prevent matches in initial board setup
-    public TileScript CheckMatches()
+    public TileClassScript CheckMatches()
     {
         for(int x = 0; x < WIDTH; x++) {
             for(int y = 0; y < HEIGHT; y++) {
-                TileScript ts = TileGrid[x, y].GetComponent<TileScript>();
+                TileClassScript ts = TileGrid[x, y].GetComponent<TileClassScript>();
 
                 if(x < WIDTH - 2 && ts.CompareTiles(TileGrid[x + 1, y], TileGrid[x + 2, y]))
                 {
@@ -102,10 +101,12 @@ public class GridManagerScript : MonoBehaviour
                     if (PlayerX < WIDTH)
                     {
                         TileGrid[PlayerX, PlayerY] = TileGrid[PlayerX + 1, PlayerY];
-                        StartCoroutine(SmoothTranslation(TileGrid[PlayerX, PlayerY], TileGrid[PlayerX, PlayerY].transform.position, new Vector2(PlayerX, PlayerY), 0.1f));
+                        StartCoroutine(SmoothTranslation(TileGrid[PlayerX, PlayerY], TileGrid[PlayerX, PlayerY].transform.position, 
+                            new Vector2(PlayerX, PlayerY), 0.1f));
 
                         TileGrid[PlayerX + 1, PlayerY] = ActivePlayer;
-                        StartCoroutine(SmoothTranslation(ActivePlayer, ActivePlayer.transform.position, new Vector2(PlayerX + 1, PlayerY), 0.1f));
+                        StartCoroutine(SmoothTranslation(ActivePlayer, ActivePlayer.transform.position, 
+                            new Vector2(PlayerX + 1, PlayerY), 0.1f));
                     }
 
                     break;
@@ -114,10 +115,12 @@ public class GridManagerScript : MonoBehaviour
                     if (PlayerX > 0)
                     {
                         TileGrid[PlayerX, PlayerY] = TileGrid[PlayerX - 1, PlayerY];
-                        StartCoroutine(SmoothTranslation(TileGrid[PlayerX, PlayerY], TileGrid[PlayerX, PlayerY].transform.position, new Vector2(PlayerX, PlayerY), 0.1f));
+                        StartCoroutine(SmoothTranslation(TileGrid[PlayerX, PlayerY], TileGrid[PlayerX, PlayerY].transform.position, 
+                            new Vector2(PlayerX, PlayerY), 0.1f));
 
                         TileGrid[PlayerX - 1, PlayerY] = ActivePlayer;
-                        StartCoroutine(SmoothTranslation(ActivePlayer, ActivePlayer.transform.position, new Vector2(PlayerX - 1, PlayerY), 0.1f));
+                        StartCoroutine(SmoothTranslation(ActivePlayer, ActivePlayer.transform.position, 
+                            new Vector2(PlayerX - 1, PlayerY), 0.1f));
                     }
 
                     break;
@@ -126,10 +129,12 @@ public class GridManagerScript : MonoBehaviour
                     if (PlayerY < HEIGHT)
                     {
                         TileGrid[PlayerX, PlayerY] = TileGrid[PlayerX, PlayerY + 1];
-                        StartCoroutine(SmoothTranslation(TileGrid[PlayerX, PlayerY], TileGrid[PlayerX, PlayerY].transform.position, new Vector2(PlayerX, PlayerY), 0.1f));
+                        StartCoroutine(SmoothTranslation(TileGrid[PlayerX, PlayerY], TileGrid[PlayerX, PlayerY].transform.position, 
+                            new Vector2(PlayerX, PlayerY), 0.1f));
 
                         TileGrid[PlayerX, PlayerY + 1] = ActivePlayer;
-                        StartCoroutine(SmoothTranslation(ActivePlayer, ActivePlayer.transform.position, new Vector2(PlayerX, PlayerY + 1), 0.1f));
+                        StartCoroutine(SmoothTranslation(ActivePlayer, ActivePlayer.transform.position, 
+                            new Vector2(PlayerX, PlayerY + 1), 0.1f));
                     }
 
                     break;
@@ -138,10 +143,12 @@ public class GridManagerScript : MonoBehaviour
                     if (PlayerY > 0)
                     {
                         TileGrid[PlayerX, PlayerY] = TileGrid[PlayerX, PlayerY - 1];
-                        StartCoroutine(SmoothTranslation(TileGrid[PlayerX, PlayerY], TileGrid[PlayerX, PlayerY].transform.position, new Vector2(PlayerX, PlayerY), 0.1f));
+                        StartCoroutine(SmoothTranslation(TileGrid[PlayerX, PlayerY], TileGrid[PlayerX, PlayerY].transform.position, 
+                            new Vector2(PlayerX, PlayerY), 0.1f));
 
                         TileGrid[PlayerX, PlayerY - 1] = ActivePlayer;
-                        StartCoroutine(SmoothTranslation(ActivePlayer, ActivePlayer.transform.position, new Vector2(PlayerX, PlayerY - 1), 0.1f));
+                        StartCoroutine(SmoothTranslation(ActivePlayer, ActivePlayer.transform.position, 
+                            new Vector2(PlayerX, PlayerY - 1), 0.1f));
                     }
 
                     break;
@@ -150,7 +157,7 @@ public class GridManagerScript : MonoBehaviour
                     break;
             }
 
-            Invoke("ClearMatches", 0.1f);
+            Invoke("ClearMatches", 0.12f);
         }       
     }
 
@@ -165,7 +172,7 @@ public class GridManagerScript : MonoBehaviour
                 // REMEMBER TO ALWAYS CHECK NULL FIRST
                 if(TileGrid[x, y] != null && TileGrid[x, y].CompareTag("Tile"))
                 {
-                    TileScript ts = TileGrid[x, y].GetComponent<TileScript>();
+                    TileClassScript ts = TileGrid[x, y].GetComponent<TileClassScript>();
 
                     if (x < WIDTH - 2 && ts.CompareTiles(TileGrid[x + 1, y], TileGrid[x + 2, y]))
                     {
@@ -220,6 +227,7 @@ public class GridManagerScript : MonoBehaviour
             // Remove matched tiles
             for (int i = 0; i < MatchingTiles.Count; i++)
             {
+                MatchingTiles[i].GetComponent<TileClassScript>().ActivateEffect();
                 Destroy(MatchingTiles[i]);
             }
 
@@ -270,10 +278,14 @@ public class GridManagerScript : MonoBehaviour
                                 if(NewY > WIDTH)
                                 {
                                     Destroy(TileGrid[x, y]);
+
+                                    //TileGrid[x, y] = null;
+                                    //yield return null;
                                 }
                             }
 
-                            StartCoroutine(SmoothTranslation(TileGrid[x, y], TileGrid[x, y].transform.position, new Vector2(NewX, NewY), 0.2f));
+                            StartCoroutine(SmoothTranslation(TileGrid[x, y], TileGrid[x, y].transform.position, 
+                                new Vector2(NewX, NewY), 0.2f));
 
                             TileGrid[NewX, NewY] = TileGrid[x, y];
                             TileGrid[x, y] = null;
@@ -284,8 +296,8 @@ public class GridManagerScript : MonoBehaviour
             nullCount = 0;
         }
 
-        yield return new WaitForSeconds(0.5f);
-
+        yield return new WaitForSeconds(0.75f);
+        
         StartCoroutine(RefillBoard());
     }
 
@@ -297,9 +309,11 @@ public class GridManagerScript : MonoBehaviour
             {
                 if(TileGrid[x, y] == null)
                 {
-                    GameObject tile = Instantiate(TilePrefab);
+                    GameObject tile = Instantiate(TilePrefab[Random.Range(0, TilePrefab.Length)]);
                     tile.transform.SetParent(this.transform);
-                    tile.transform.localPosition = new Vector2(x, y);
+                    tile.transform.localPosition = new Vector2(x, HEIGHT + 3);
+
+                    StartCoroutine(SmoothTranslation(tile, tile.transform.position, new Vector2(x, y), 0.225f));
 
                     TileGrid[x, y] = tile;
                 }
