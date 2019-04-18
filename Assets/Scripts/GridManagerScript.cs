@@ -31,8 +31,14 @@ public class GridManagerScript : MonoBehaviour
         CenterCamera();
 
         TileClassScript ts = CheckMatches();
-        while(ts != null)
+        while (ts != null)
         {
+            int XPos = (int)ts.gameObject.transform.position.x;
+            int YPos = (int)ts.gameObject.transform.position.y;
+
+            Destroy(TileGrid[XPos, YPos]);
+            TileGrid[XPos, YPos] = null;
+            TileGrid[XPos, YPos] = TilePrefab[Random.Range(0, TilePrefab.Length)];
             ts = CheckMatches();
         }
 

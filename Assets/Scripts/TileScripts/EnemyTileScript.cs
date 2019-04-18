@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyTileScript : MonoBehaviour
+public class EnemyTileScript : TileClassScript
 {
     // Start is called before the first frame update
     void Start()

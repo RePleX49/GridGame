@@ -6,9 +6,9 @@ public class TileClassScript : MonoBehaviour
 {
     [HideInInspector] public int TileType;
 
-    SpriteRenderer sr;
+    protected SpriteRenderer sr;
 
-    private void Awake()
+    protected void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
     }
