@@ -413,13 +413,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de2a6d3affd24ad4db66504cb4f716ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TilePrefab: {fileID: 8555977205177146391, guid: 0d33c7ea89f9bdc48947b3463cd68a00,
-    type: 3}
+  TilePrefab:
+  - {fileID: 8056462496939998348, guid: 18843b2b2fc0baf499c090881f818c3b, type: 3}
+  - {fileID: 3068369071999385011, guid: 06e41c0017a28c7489d2990eef45fb4f, type: 3}
+  - {fileID: 4340977910161403750, guid: 53bbe64175cf5ea4296c1fcb95c9895e, type: 3}
+  - {fileID: 5637457645107349098, guid: beb0da0cf9a44d24c9dd4ac08459c9a9, type: 3}
+  - {fileID: 4277714381403810232, guid: a7176d813537fdb4ba6985f270afd707, type: 3}
   PlayerPrefab: {fileID: 8381483275158396813, guid: f3a8aa3d34ebc8c41aff354200d2ab59,
     type: 3}
   cameraShake: {fileID: 519420030}
   ScoreText: {fileID: 1427752612}
   TotalScore: 0
+  ObjectIsMoving: 0
 --- !u!4 &1461208233
 Transform:
   m_ObjectHideFlags: 0

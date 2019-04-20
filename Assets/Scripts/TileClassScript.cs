@@ -2,28 +2,25 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TileScript : MonoBehaviour
+public class TileClassScript : MonoBehaviour
 {
-    public Sprite[] TileSprites;
     [HideInInspector] public int TileType;
 
-    SpriteRenderer sr;
+    protected SpriteRenderer sr;
 
-    private void Awake()
+    protected void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
-        SetType();
     }
 
-    public void SetType()
+    public virtual void ActivateEffect()
     {
-        TileType = Random.Range(0, TileSprites.Length);
-        sr.sprite = TileSprites[TileType];
+        // activate some effect
     }
 
     public bool CompareTiles(GameObject t1, GameObject t2)
     {
-        if(t1.gameObject != null && t2.gameObject != null && t1.CompareTag("Tile") && t2.CompareTag("Tile"))
+        if (t1.gameObject != null && t2.gameObject != null && t1.CompareTag("Tile") && t2.CompareTag("Tile"))
         {
             SpriteRenderer ts1 = t1.GetComponent<SpriteRenderer>();
             SpriteRenderer ts2 = t2.GetComponent<SpriteRenderer>();
