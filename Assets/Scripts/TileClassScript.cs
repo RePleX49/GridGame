@@ -4,28 +4,27 @@ using UnityEngine;
 
 public class TileClassScript : MonoBehaviour
 {
-    [HideInInspector] public int TileType;
+    public int TileType;
 
-    protected SpriteRenderer sr;
-
-    protected void Awake()
-    {
-        sr = GetComponent<SpriteRenderer>();
-    }
+    public ParticleSystem particleFX;
+    public AudioSource audioSource;
+    public SpriteRenderer sr;
 
     public virtual void ActivateEffect()
     {
-        // activate some effect
+        // activate some effect   
+        audioSource.Play();
+        particleFX.Play();
     }
 
     public bool CompareTiles(GameObject t1, GameObject t2)
     {
         if (t1.gameObject != null && t2.gameObject != null && t1.CompareTag("Tile") && t2.CompareTag("Tile"))
         {
-            SpriteRenderer ts1 = t1.GetComponent<SpriteRenderer>();
-            SpriteRenderer ts2 = t2.GetComponent<SpriteRenderer>();
+            TileClassScript ts1 = t1.GetComponent<TileClassScript>();
+            TileClassScript ts2 = t2.GetComponent<TileClassScript>();
 
-            return (ts1.sprite == sr.sprite && ts2.sprite == sr.sprite);
+            return (ts1.TileType == TileType && ts2.TileType == TileType);
         }
         else
         {

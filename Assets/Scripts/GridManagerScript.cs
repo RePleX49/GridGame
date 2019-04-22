@@ -5,26 +5,41 @@ using UnityEngine.UI;
 
 public class GridManagerScript : MonoBehaviour
 {
+    public static GridManagerScript Instance;
+
     // Always use even number for WIDTH and HEIGHT or you will break the game
     private const int WIDTH = 6;
-    private const int HEIGHT = 10;
+    private const int HEIGHT = 8;
 
     [SerializeField] private GameObject[,] TileGrid;
-    private GameObject ActivePlayer;
+    [SerializeField] private GameObject ActivePlayer;
     private AudioSource audioSource;
 
     public GameObject[] TilePrefab;
-    public GameObject PlayerPrefab;
     public CameraShake cameraShake;
     public Text ScoreText;
 
-    public int TotalScore;
-    public bool ObjectIsMoving;
+    [HideInInspector] public int TotalScore;
+    [HideInInspector] public bool ObjectIsMoving;
+
+    bool running = false;
+
+
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else if (Instance != this)
+        {
+            Destroy(this.gameObject);
+        }
+    }
 
     // Start is called before the first frame update
     void Start()
     {
-        
         audioSource = GetComponent<AudioSource>();
         TileGrid = new GameObject[WIDTH, HEIGHT];
         MakeGrid();
@@ -38,14 +53,18 @@ public class GridManagerScript : MonoBehaviour
 
             Destroy(TileGrid[XPos, YPos]);
             TileGrid[XPos, YPos] = null;
-            TileGrid[XPos, YPos] = TilePrefab[Random.Range(0, TilePrefab.Length)];
+
+            GameObject tile = Instantiate(TilePrefab[Random.Range(0, TilePrefab.Length)]);
+            tile.transform.SetParent(this.transform);
+            tile.transform.localPosition = new Vector2(XPos, YPos);
+
+            TileGrid[XPos, YPos] = tile;
             ts = CheckMatches();
         }
 
         // Clear a spot in grid for player
         Destroy(TileGrid[WIDTH / 2, HEIGHT / 2]);
 
-        ActivePlayer = Instantiate(PlayerPrefab);
         ActivePlayer.transform.localPosition = new Vector2(WIDTH / 2, HEIGHT / 2);
         TileGrid[WIDTH / 2, HEIGHT / 2] = ActivePlayer;      
     }
@@ -78,16 +97,19 @@ public class GridManagerScript : MonoBehaviour
     {
         for(int x = 0; x < WIDTH; x++) {
             for(int y = 0; y < HEIGHT; y++) {
-                TileClassScript ts = TileGrid[x, y].GetComponent<TileClassScript>();
+                if (TileGrid[x, y] != null && TileGrid[x, y].CompareTag("Tile"))
+                {
+                    TileClassScript ts = TileGrid[x, y].GetComponent<TileClassScript>();
 
-                if(x < WIDTH - 2 && ts.CompareTiles(TileGrid[x + 1, y], TileGrid[x + 2, y]))
-                {
-                    return ts;
-                }
-                else if ( y < HEIGHT - 2 && ts.CompareTiles(TileGrid[x, y + 1], TileGrid[x, y + 2]))
-                {
-                    return ts;
-                }
+                    if (x < WIDTH - 2 && ts.CompareTiles(TileGrid[x + 1, y], TileGrid[x + 2, y]))
+                    {
+                        return ts;
+                    }
+                    else if (y < HEIGHT - 2 && ts.CompareTiles(TileGrid[x, y + 1], TileGrid[x, y + 2]))
+                    {
+                        return ts;
+                    }
+                }                   
             }
         }
 
@@ -163,12 +185,19 @@ public class GridManagerScript : MonoBehaviour
                     break;
             }
 
-            Invoke("ClearMatches", 0.12f);
-        }       
+            StartCoroutine(ClearMatches());
+
+            TotalScore = PlayerController.Instance.GoldCollected;
+            PlayerController.Instance.CheckGameOver();
+        }
+
+        
     }
 
-    void ClearMatches()
+    IEnumerator ClearMatches()
     {
+        yield return new WaitForSeconds(0.12f);
+
         List<GameObject> MatchingTiles = new List<GameObject>();
 
         for (int x = 0; x < WIDTH; x++){ 
@@ -224,27 +253,38 @@ public class GridManagerScript : MonoBehaviour
 
         //Debug.Log("MatchingTile Count: " + MatchingTiles.Count);       
 
-        if(MatchingTiles.Count >= 3)
+        if(MatchingTiles.Count >= 3 && !running)
         {
-            //Update Score
-            TotalScore += (2 * MatchingTiles.Count) * MatchingTiles.Count;
-            ScoreText.text = "Score: " + TotalScore.ToString();
+            running = true;
+            PlayerController.Instance.InputDisabled = true;                  
+
+            StartCoroutine(cameraShake.Shake(0.2f, 0.2f));
 
             // Remove matched tiles
             for (int i = 0; i < MatchingTiles.Count; i++)
             {
-                MatchingTiles[i].GetComponent<TileClassScript>().ActivateEffect();
+                MatchingTiles[i].GetComponent<TileClassScript>().ActivateEffect();    
+            }
+
+            yield return new WaitForSeconds(0.65f);
+
+            for (int i = 0; i < MatchingTiles.Count; i++)
+            {
                 Destroy(MatchingTiles[i]);
             }
 
-            audioSource.Play();
+            running = false;
 
-            ActivePlayer.GetComponent<PlayerController>().ResetMoves();
+            PlayerController.Instance.AddMoves();
 
-            StartCoroutine(cameraShake.Shake(0.2f, 0.2f));
+            ScoreText.text = "Gold: " + PlayerController.Instance.GoldCollected.ToString();
+
+            
         }
 
-        //Debug.Log(MatchingTiles.Count);
+        
+
+        Debug.Log(MatchingTiles.Count);
 
         StartCoroutine(ShiftTilesDown());
     }
@@ -253,6 +293,7 @@ public class GridManagerScript : MonoBehaviour
     {
         //TODO figure out why this works
         yield return new WaitForEndOfFrame();
+
         int nullCount = 0;
 
         for (int x = 0; x < WIDTH; x++)
@@ -278,16 +319,24 @@ public class GridManagerScript : MonoBehaviour
                             int NewX = (int)TileGrid[x, y].transform.position.x;
                             int NewY = (int)TileGrid[x, y].transform.position.y - nullCount;
 
-                            if(TileGrid[NewX, NewY] != null)
+                            if (NewY < HEIGHT)
                             {
-                                NewY += 1;
-                                if(NewY > WIDTH)
+                                if (TileGrid[NewX, NewY] != null)
                                 {
-                                    Destroy(TileGrid[x, y]);
+                                    NewY += 1;
+                                    if (NewY > WIDTH)
+                                    {
+                                        Destroy(TileGrid[x, y]);
 
-                                    //TileGrid[x, y] = null;
-                                    //yield return null;
+                                        yield break;
+                                        //TileGrid[x, y] = null;
+                                        //yield return null;
+                                    }
                                 }
+                            }
+                            else
+                            {
+                                yield break;
                             }
 
                             StartCoroutine(SmoothTranslation(TileGrid[x, y], TileGrid[x, y].transform.position, 
@@ -326,9 +375,20 @@ public class GridManagerScript : MonoBehaviour
             }
         }
 
-        yield return new WaitForSeconds(0.75f);
+        yield return new WaitForSeconds(0.7f);
 
-        ClearMatches();
+        TileClassScript ts = CheckMatches();
+
+        if (ts == null)
+        {
+            PlayerController.Instance.InputDisabled = false;
+            yield break;
+        }
+        else if(ts != null)
+        {
+            StartCoroutine(ClearMatches());
+        }
+
     }
 
     IEnumerator SmoothTranslation(GameObject MoveObject, Vector2 InitialPos, Vector2 TargetPos, float MoveDuration)
@@ -346,8 +406,10 @@ public class GridManagerScript : MonoBehaviour
         if(MoveObject != null)
         {
             MoveObject.transform.position = TargetPos;
-        }       
+        }
 
         ObjectIsMoving = false;
+
+        yield return null;
     }
 }

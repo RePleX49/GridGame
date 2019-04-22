@@ -4,9 +4,16 @@ using UnityEngine;
 
 public class HealthTileScript : TileClassScript
 {
+    public int HealthGiven = 2;
+
     override public void ActivateEffect() 
     {
-        GameObject Player = GameObject.Find("Character");
-        Player.GetComponent<PlayerController>().MovesLeft += 2;
+        base.ActivateEffect();
+
+        Debug.Log(particleFX.isPlaying);
+
+        PlayerController.Instance.MovesLeft += HealthGiven;
+
+        PlayerController.Instance.MoveText.text = "HP: " +  PlayerController.Instance.MovesLeft.ToString();
     }
 }

@@ -6,69 +6,79 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private int MaxMoves = 6;
+    [SerializeField] private int MaxMoves = 10;
     [HideInInspector] public int MovesLeft;
     [HideInInspector] public int AttacksLeft;
-    [HideInInspector] public int GoldCollected;
+    [HideInInspector] public int GoldCollected = 0;
+
+    public static PlayerController Instance = null;
 
     private GridManagerScript GMScript;
-    private Text MoveText;
-    private GameObject MoveTextHolder;
+    public Text MoveText;
+    public Text AttackText;
+
+    [HideInInspector] public bool InputDisabled = false;
+
+    void Awake()
+    {
+        if(Instance == null)
+        {
+            Instance = this;
+        }
+        else if(Instance != this)
+        {
+            Destroy(this.gameObject);
+        }
+    }
 
     // Start is called before the first frame update
     void Start()
     {
         MovesLeft = MaxMoves;
-        MoveText = GameObject.Find("PlayerMovesText").GetComponent<Text>();
+        AttacksLeft = 12;
 
-        MoveTextHolder = GameObject.Find("MoveTextHolder");
-        MoveTextHolder.transform.localPosition = Camera.main.WorldToScreenPoint(this.transform.position);
+        MoveText.text = "HP: " +  MovesLeft.ToString();
 
-        MoveText.text = MovesLeft.ToString();
+        AttackText.text = "Attack: " + AttacksLeft.ToString();
+
         GMScript = GameObject.Find("GridManager").GetComponent<GridManagerScript>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(!GMScript.ObjectIsMoving)
+        if(!InputDisabled)
         {
             if (Input.GetKeyDown(KeyCode.RightArrow))
             {
                 //if player x is less than grid WIDTH then can move
                 GMScript.MovePlayer("Right");
-                CheckGameOver();
             }
 
             if (Input.GetKeyDown(KeyCode.LeftArrow))
             {
                 // if player x is greater than 0, then can move
                 GMScript.MovePlayer("Left");
-                CheckGameOver();
             }
 
             if (Input.GetKeyDown(KeyCode.UpArrow))
             {
                 // if player y is less than HEIGHT, then can move
                 GMScript.MovePlayer("Up");
-                CheckGameOver();
             }
 
             if (Input.GetKeyDown(KeyCode.DownArrow))
             {
                 // if player y is greater than 0, then can move
                 GMScript.MovePlayer("Down");
-                CheckGameOver();
             }           
         }
-
-        MoveTextHolder.transform.position = Camera.main.WorldToScreenPoint(this.transform.position);
     }
 
-    void CheckGameOver()
+    public void CheckGameOver()
     {
         MovesLeft--;
-        MoveText.text = MovesLeft.ToString();
+        MoveText.text = "HP: " + MovesLeft.ToString();
 
         if (MovesLeft < 1)
         {
@@ -76,10 +86,10 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void ResetMoves()
+    public void AddMoves()
     {
-        MovesLeft = MaxMoves;
-        MoveText.text = MovesLeft.ToString();
+        MovesLeft++;
+        MoveText.text = "HP: " + MovesLeft.ToString();
     }
 }
 

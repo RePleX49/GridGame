@@ -4,15 +4,31 @@ using UnityEngine;
 
 public class EnemyTileScript : TileClassScript
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public int EnemyDamage = 4;
+    public int GoldAmount = 10;
 
-    // Update is called once per frame
-    void Update()
+    public override void ActivateEffect()
     {
+        base.ActivateEffect();
+
+        Debug.Log(particleFX.isPlaying);
+
+        PlayerController.Instance.GoldCollected += GoldAmount;
+
+        if(PlayerController.Instance.AttacksLeft >= EnemyDamage)
+        {
+            PlayerController.Instance.AttacksLeft -= EnemyDamage;
+            PlayerController.Instance.AttackText.text = "Attacks: " + PlayerController.Instance.AttacksLeft;
+        }
+        else
+        {
+            PlayerController.Instance.MovesLeft -= EnemyDamage;
+        }
         
+        if(PlayerController.Instance.MovesLeft <= 0)
+        {
+            PlayerController.Instance.MovesLeft = 0;
+            PlayerController.Instance.CheckGameOver();
+        }
     }
 }

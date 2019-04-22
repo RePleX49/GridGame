@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GoldTileScript : TileClassScript
+public class TreasureTileScript : TileClassScript
 {
     public override void ActivateEffect()
     {
         base.ActivateEffect();
 
-        PlayerController.Instance.GoldCollected += 5;
+        Debug.Log(particleFX.isPlaying);
+
+        PlayerController.Instance.GoldCollected += 15;
     }
 }
